@@ -5,12 +5,12 @@ import { db } from "@workspace/db";
 import { subscriptionsTable, productsTable } from "@workspace/db";
 import { eq, inArray } from "drizzle-orm";
 import { requireAdmin } from "../middlewares/requireAdmin";
-import { getUncachableStripeClient } from "../stripeClient";
+import { getUncachableStripeClient } from "../services/payments/stripe-client";
 import {
   getOrCreateStripeCustomer,
   getStripeCustomerId,
   listPaymentsForCustomer,
-} from "../stripeStorage";
+} from "../services/payments/stripe-storage";
 
 const router = Router();
 

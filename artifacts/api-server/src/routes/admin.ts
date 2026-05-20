@@ -5,8 +5,8 @@ import { approvedSkusTable, APPROVED_CATEGORIES, babiesTable, ordersTable, subsc
 import { z } from "zod";
 import { eq, inArray, desc, ne } from "drizzle-orm";
 import { requireAdmin } from "../middlewares/requireAdmin";
-import { searchCatalog, getCatalogItemWithVariants } from "../services/amazonCatalog";
-import { sendShippingNotification } from "../services/emailService";
+import { searchCatalog, getCatalogItemWithVariants } from "../services/catalog/amazon";
+import { sendShippingNotification } from "../services/notifications/email";
 
 const router = Router();
 

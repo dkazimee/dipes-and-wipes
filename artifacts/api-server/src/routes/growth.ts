@@ -4,7 +4,7 @@ import { growthEntriesTable, babiesTable, subscriptionsTable } from "@workspace/
 import { eq, desc, and, gte } from "drizzle-orm";
 import { z } from "zod";
 import { calcDiaperSize } from "./babies";
-import { predictWeightLbs, predictHeightIn, calcPercentileForWeight, calcPercentileForHeight, ageInMonths, ageInMonthsAt, calcWipesPerMonth, calcDiapersPerMonth } from "../services/cdc-growth";
+import { predictWeightLbs, predictHeightIn, calcPercentileForWeight, calcPercentileForHeight, ageInMonths, ageInMonthsAt, calcWipesPerMonth, calcDiapersPerMonth } from "../services/growth/cdc";
 
 function ordinal(n: number): string {
   const s = ["th", "st", "nd", "rd"];

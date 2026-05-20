@@ -8,9 +8,9 @@ import {
   getMcfOrder,
   mapMcfStatus,
   extractTrackingNumber,
-} from "../services/amazonMcf";
-import { tryAutoFulfillMcf } from "../services/mcfAutoFulfill";
-import { sendOrderConfirmation } from "../services/emailService";
+} from "../services/fulfillment/amazon-mcf";
+import { tryAutoFulfillMcf } from "../services/subscriptions/auto-fulfill";
+import { sendOrderConfirmation } from "../services/notifications/email";
 
 const router = Router();
 

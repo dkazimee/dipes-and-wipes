@@ -1,8 +1,8 @@
 import app from "./app";
-import { logger } from "./lib/logger";
+import { logger } from "./utilities/logger";
 import { runMigrations } from "stripe-replit-sync";
-import { getStripeSync } from "./stripeClient";
-import { ensureBrandProductsSeeded } from "./services/stripeBrandSeed";
+import { getStripeSync } from "./services/payments/stripe-client";
+import { ensureBrandProductsSeeded } from "./services/payments/stripe-brand-seed";
 
 async function initStripe() {
   const databaseUrl = process.env.DATABASE_URL;

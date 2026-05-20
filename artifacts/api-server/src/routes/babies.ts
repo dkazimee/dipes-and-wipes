@@ -4,7 +4,7 @@ import { db } from "@workspace/db";
 import { babiesTable, growthEntriesTable } from "@workspace/db";
 import { eq, desc, inArray, and } from "drizzle-orm";
 import { z } from "zod";
-import { predictWeightLbs, ageInMonths, calcPercentileForHeight } from "../services/cdc-growth";
+import { predictWeightLbs, ageInMonths, calcPercentileForHeight } from "../services/growth/cdc";
 
 const RECENT_MEASUREMENT_DAYS = 30;
 

@@ -4,9 +4,9 @@ import { db } from "@workspace/db";
 import { subscriptionsTable, subscriptionItemsTable, babiesTable, productsTable, ordersTable } from "@workspace/db";
 import { eq, inArray, and } from "drizzle-orm";
 import { z } from "zod";
-import { tryAutoFulfillMcf } from "../services/mcfAutoFulfill";
-import { predictDiaperSizeAtDate } from "../services/cdc-growth";
-import { logger } from "../lib/logger";
+import { tryAutoFulfillMcf } from "../services/subscriptions/auto-fulfill";
+import { predictDiaperSizeAtDate } from "../services/growth/cdc";
+import { logger } from "../utilities/logger";
 
 const router = Router();
 
