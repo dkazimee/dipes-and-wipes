@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 60" fill="none">
+  <!-- Heart icon -->
+  <path d="M22 18c-3.3 0-6 2.7-6 6 0 7 8 13 14 16 6-3 14-9 14-16 0-3.3-2.7-6-6-6-1.8 0-3.4.8-4.5 2.1A5.9 5.9 0 0022 18z" fill="#2d9e8f"/>
+  <!-- Diaper shape -->
+  <rect x="18" y="37" width="24" height="12" rx="3" fill="#2d9e8f" opacity="0.15"/>
+  <rect x="21" y="39" width="18" height="8" rx="2" fill="#2d9e8f" opacity="0.4"/>
+  <!-- Brand name -->
+  <text x="55" y="28" font-family="Georgia, serif" font-size="16" font-weight="700" fill="#161f3a">Dipes &amp;</text>
+  <text x="55" y="48" font-family="Georgia, serif" font-size="16" font-weight="700" fill="#2d9e8f">Wipes</text>
+</svg>

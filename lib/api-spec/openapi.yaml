@@ -1,0 +1,1642 @@
+openapi: 3.1.0
+info:
+  title: Api
+  version: 0.1.0
+  description: Dipes & Wipes API
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: babies
+    description: Baby profiles
+  - name: growth
+    description: Baby growth entries
+  - name: products
+    description: Product catalog
+  - name: subscriptions
+    description: Subscriptions
+  - name: orders
+    description: Delivery orders
+  - name: dashboard
+    description: Dashboard summary
+  - name: approved-skus
+    description: Amazon MCF fulfillment SKU allowlist (admin)
+  - name: stripe
+    description: Stripe payments and billing
+
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  /babies:
+    get:
+      operationId: listBabies
+      tags: [babies]
+      summary: List all baby profiles
+      responses:
+        "200":
+          description: List of babies
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Baby"
+    post:
+      operationId: createBaby
+      tags: [babies]
+      summary: Create a baby profile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BabyInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Baby"
+
+  /babies/{id}:
+    get:
+      operationId: getBaby
+      tags: [babies]
+      summary: Get a baby profile
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Baby
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Baby"
+        "404":
+          description: Not found
+    patch:
+      operationId: updateBaby
+      tags: [babies]
+      summary: Update a baby profile
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BabyUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Baby"
+    delete:
+      operationId: deleteBaby
+      tags: [babies]
+      summary: Delete a baby profile
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /babies/{id}/growth:
+    get:
+      operationId: listGrowthEntries
+      tags: [growth]
+      summary: List growth entries for a baby
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Growth entries
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/GrowthEntry"
+    post:
+      operationId: addGrowthEntry
+      tags: [growth]
+      summary: Add a growth entry for a baby
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GrowthEntryInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GrowthEntry"
+
+  /babies/{id}/growth/{entryId}:
+    patch:
+      operationId: updateGrowthEntry
+      tags: [growth]
+      summary: Update a growth entry
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: entryId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GrowthEntryInput"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GrowthEntry"
+        "404":
+          description: Not found
+    delete:
+      operationId: deleteGrowthEntry
+      tags: [growth]
+      summary: Delete a growth entry
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: entryId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
+
+  /babies/{id}/growth/size-recommendation:
+    get:
+      operationId: getSizeRecommendation
+      tags: [growth]
+      summary: Get current diaper size recommendation for a baby
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Size recommendation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SizeRecommendation"
+
+  /babies/{id}/growth/wipes-recommendation:
+    get:
+      operationId: getWipesRecommendation
+      tags: [growth]
+      summary: Get estimated monthly wipes consumption for a baby
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Wipes recommendation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WipesRecommendation"
+        "404":
+          description: Not found
+
+  /babies/{id}/growth/diapers-recommendation:
+    get:
+      operationId: getDiapersRecommendation
+      tags: [growth]
+      summary: Get estimated monthly diaper consumption for a baby
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Diapers recommendation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DiapersRecommendation"
+        "404":
+          description: Not found
+
+  /products:
+    get:
+      operationId: listProducts
+      tags: [products]
+      summary: List all products
+      parameters:
+        - name: category
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of products
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Product"
+    post:
+      operationId: createProduct
+      tags: [products]
+      summary: Create a product
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProductInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+
+  /products/{id}:
+    patch:
+      operationId: updateProduct
+      tags: [products]
+      summary: Update a product
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProductInput"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+    delete:
+      operationId: deleteProduct
+      tags: [products]
+      summary: Delete a product
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /stripe/checkout/one-time:
+    post:
+      operationId: createOneTimeCheckout
+      tags: [stripe]
+      summary: Create a Stripe Checkout session for a one-time cart purchase
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CartCheckoutInput"
+      responses:
+        "200":
+          description: Stripe Checkout URL
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CheckoutSession"
+        "400":
+          description: Invalid input or empty cart
+
+  /stripe/checkout/subscription:
+    post:
+      operationId: createSubscriptionCheckout
+      tags: [stripe]
+      summary: Create a Stripe Checkout session for a subscription
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SubscriptionCheckoutInput"
+      responses:
+        "200":
+          description: Stripe Checkout URL
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CheckoutSession"
+        "400":
+          description: Invalid input or missing Stripe price
+        "404":
+          description: Subscription not found
+
+  /stripe/payments:
+    get:
+      operationId: listMyPayments
+      tags: [stripe]
+      summary: List payment history for the current user
+      responses:
+        "200":
+          description: Payment history
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/StripePayment"
+
+  /stripe/payments/{userId}:
+    get:
+      operationId: listUserPayments
+      tags: [stripe]
+      summary: List payment history for a user (admin)
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Payment history
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/StripePayment"
+
+  /stripe/refund:
+    post:
+      operationId: issueRefund
+      tags: [stripe]
+      summary: Issue a refund for a payment (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RefundInput"
+      responses:
+        "200":
+          description: Refund issued
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RefundResult"
+
+  /subscriptions:
+    get:
+      operationId: listSubscriptions
+      tags: [subscriptions]
+      summary: List all subscriptions
+      responses:
+        "200":
+          description: List of subscriptions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Subscription"
+    post:
+      operationId: createSubscription
+      tags: [subscriptions]
+      summary: Create a subscription for a baby
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SubscriptionInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Subscription"
+
+  /subscriptions/{id}:
+    get:
+      operationId: getSubscription
+      tags: [subscriptions]
+      summary: Get a subscription
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Subscription
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Subscription"
+    patch:
+      operationId: updateSubscription
+      tags: [subscriptions]
+      summary: Update a subscription
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SubscriptionUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Subscription"
+    delete:
+      operationId: deleteSubscription
+      tags: [subscriptions]
+      summary: Cancel a subscription
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Cancelled
+
+  /subscriptions/{id}/pause:
+    post:
+      operationId: pauseSubscription
+      tags: [subscriptions]
+      summary: Pause a subscription
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Paused
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Subscription"
+
+  /subscriptions/{id}/resume:
+    post:
+      operationId: resumeSubscription
+      tags: [subscriptions]
+      summary: Resume a paused subscription
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Resumed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Subscription"
+
+  /orders:
+    get:
+      operationId: listOrders
+      tags: [orders]
+      summary: List all delivery orders
+      responses:
+        "200":
+          description: List of orders
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Order"
+
+  /orders/{id}:
+    get:
+      operationId: getOrder
+      tags: [orders]
+      summary: Get a delivery order
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Order
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+
+  /orders/{id}/fulfill:
+    post:
+      operationId: fulfillOrder
+      tags: [orders]
+      summary: Submit an order to the 3PL for fulfillment
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FulfillOrderInput"
+      responses:
+        "200":
+          description: Submitted to fulfillment
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+
+  /orders/{id}/sync-fulfillment:
+    post:
+      operationId: syncOrderFulfillment
+      tags: [orders]
+      summary: Sync fulfillment status from the 3PL
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Synced
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+
+  /orders/{id}/fulfill-amazon:
+    post:
+      operationId: fulfillOrderAmazon
+      tags: [orders]
+      summary: Submit an order to Amazon MCF for fulfillment
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FulfillAmazonInput"
+      responses:
+        "200":
+          description: Submitted to Amazon MCF
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+        "404":
+          description: Order not found
+        "409":
+          description: Order already submitted to fulfillment
+        "422":
+          description: Unprocessable — missing address or Amazon SKUs
+
+  /orders/{id}/sync-amazon:
+    post:
+      operationId: syncOrderAmazon
+      tags: [orders]
+      summary: Sync fulfillment status from Amazon MCF
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Synced
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+        "404":
+          description: Order not found
+        "422":
+          description: Order has not been submitted to Amazon MCF
+
+  /orders/one-time:
+    post:
+      operationId: createOneTimePurchase
+      tags: [orders]
+      summary: Create a one-time purchase order (not tied to a subscription)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OneTimePurchaseInput"
+      responses:
+        "201":
+          description: Order created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+        "400":
+          description: Invalid input
+        "404":
+          description: Product not found
+
+  /orders/validate-amazon:
+    post:
+      operationId: validateAmazonCart
+      tags: [orders]
+      summary: Validate a list of subscription items against the active Amazon MCF SKU whitelist
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ValidateAmazonCartInput"
+      responses:
+        "200":
+          description: Validation result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidateAmazonCartResult"
+
+  /orders/process-pending:
+    post:
+      operationId: processPendingOrders
+      tags: [orders]
+      summary: Batch-submit all pending orders to Amazon MCF (background job trigger)
+      description: |
+        Finds all orders with status="pending" (and no fulfillmentId) and attempts
+        Amazon MCF auto-fulfillment for each. Pass ?retry=true to also retry orders
+        that previously failed with status="fulfillment_error".
+      parameters:
+        - in: query
+          name: retry
+          schema:
+            type: boolean
+          description: When true, also retry orders with status="fulfillment_error"
+      responses:
+        "200":
+          description: Summary of the batch run
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProcessPendingResult"
+
+  /approved-skus:
+    get:
+      operationId: listApprovedSkus
+      tags: [approved-skus]
+      summary: List all approved SKUs in the Amazon MCF allowlist
+      responses:
+        "200":
+          description: List of approved SKUs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ApprovedSku"
+    post:
+      operationId: createApprovedSku
+      tags: [approved-skus]
+      summary: Add a SKU to the Amazon MCF allowlist
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ApprovedSkuInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApprovedSku"
+
+  /approved-skus/{id}:
+    get:
+      operationId: getApprovedSku
+      tags: [approved-skus]
+      summary: Get an approved SKU by id
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Approved SKU
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApprovedSku"
+        "404":
+          description: Not found
+    patch:
+      operationId: updateApprovedSku
+      tags: [approved-skus]
+      summary: Update an approved SKU
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ApprovedSkuInput"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApprovedSku"
+        "404":
+          description: Not found
+    delete:
+      operationId: deactivateApprovedSku
+      tags: [approved-skus]
+      summary: Deactivate an approved SKU (soft-delete)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deactivated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApprovedSku"
+        "404":
+          description: Not found
+
+  /dashboard/summary:
+    get:
+      operationId: getDashboardSummary
+      tags: [dashboard]
+      summary: Get dashboard summary stats
+      responses:
+        "200":
+          description: Dashboard summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardSummary"
+
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required:
+        - status
+
+    Baby:
+      type: object
+      required: [id, name, birthDate, createdAt]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        birthDate:
+          type: string
+          format: date
+        gender:
+          type: ["string", "null"]
+        avatarEmoji:
+          type: ["string", "null"]
+        currentWeightLbs:
+          type: ["number", "null"]
+        currentHeightIn:
+          type: ["number", "null"]
+        weightPercentile:
+          type: ["number", "null"]
+        heightPercentile:
+          type: ["number", "null"]
+        currentHeightPercentile:
+          type: ["number", "null"]
+        currentDiaperSize:
+          type: ["string", "null"]
+        notes:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+
+    BabyInput:
+      type: object
+      required: [name, birthDate]
+      properties:
+        name:
+          type: string
+          minLength: 1
+        birthDate:
+          type: string
+          format: date
+        gender:
+          type: string
+        avatarEmoji:
+          type: string
+        currentWeightLbs:
+          type: number
+        currentHeightIn:
+          type: number
+        weightPercentile:
+          type: number
+        heightPercentile:
+          type: number
+        notes:
+          type: string
+
+    BabyUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        birthDate:
+          type: string
+          format: date
+        gender:
+          type: string
+        avatarEmoji:
+          type: string
+        currentWeightLbs:
+          type: number
+        currentHeightIn:
+          type: number
+        weightPercentile:
+          type: number
+        heightPercentile:
+          type: number
+        currentDiaperSize:
+          type: string
+        notes:
+          type: string
+
+    GrowthEntry:
+      type: object
+      required: [id, babyId, recordedAt, createdAt]
+      properties:
+        id:
+          type: integer
+        babyId:
+          type: integer
+        recordedAt:
+          type: string
+          format: date
+        weightLbs:
+          type: ["number", "null"]
+        heightIn:
+          type: ["number", "null"]
+        weightPercentile:
+          type: ["number", "null"]
+        heightPercentile:
+          type: ["number", "null"]
+        diaperSize:
+          type: ["string", "null"]
+        notes:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+
+    GrowthEntryInput:
+      type: object
+      required: [recordedAt]
+      properties:
+        recordedAt:
+          type: string
+          format: date
+        weightLbs:
+          type: number
+        heightIn:
+          type: number
+        weightPercentile:
+          type: number
+        heightPercentile:
+          type: number
+        diaperSize:
+          type: string
+        notes:
+          type: string
+
+    DiapersRecommendation:
+      type: object
+      required: [babyId, ageInMonths, changesPerDay, diapersPerMonth, explanation]
+      properties:
+        babyId:
+          type: integer
+        ageInMonths:
+          type: number
+        changesPerDay:
+          type: number
+        diapersPerMonth:
+          type: integer
+        explanation:
+          type: string
+
+    WipesRecommendation:
+      type: object
+      required: [babyId, ageInMonths, changesPerDay, wipesPerMonth, explanation]
+      properties:
+        babyId:
+          type: integer
+        ageInMonths:
+          type: number
+        changesPerDay:
+          type: number
+        wipesPerMonth:
+          type: integer
+        explanation:
+          type: string
+
+    SizeRecommendation:
+      type: object
+      required: [babyId, recommendedSize, reasoning, nextSizeAt, predictionBasis, confidenceNote]
+      properties:
+        babyId:
+          type: integer
+        recommendedSize:
+          type: string
+        currentWeightLbs:
+          type: ["number", "null"]
+        predictedWeightLbs:
+          type: ["number", "null"]
+        predictedHeightIn:
+          type: ["number", "null"]
+        recentHeightIn:
+          type: ["number", "null"]
+        predictedHeightPercentile:
+          type: ["number", "null"]
+        predictionBasis:
+          type: string
+          description: "cdc-median | cdc-tracked-percentile | actual-measurement"
+        confidenceNote:
+          type: string
+        trackedPercentile:
+          type: ["number", "null"]
+        reasoning:
+          type: string
+        nextSizeAt:
+          type: ["string", "null"]
+        nextSize:
+          type: ["string", "null"]
+        estimatedMonthsInSize:
+          type: ["number", "null"]
+        predictedSizeAtNextDelivery:
+          type: ["string", "null"]
+        nextDeliveryDate:
+          type: ["string", "null"]
+
+    Product:
+      type: object
+      required: [id, name, category, price]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        category:
+          type: string
+        description:
+          type: ["string", "null"]
+        price:
+          type: number
+        imageEmoji:
+          type: ["string", "null"]
+        compatibleSizes:
+          type: ["string", "null"]
+        brand:
+          type: ["string", "null"]
+        sku:
+          type: ["string", "null"]
+        shipbobProductId:
+          type: ["integer", "null"]
+        asin:
+          type: ["string", "null"]
+        diaperSize:
+          type: ["string", "null"]
+        babyWeightMinLbs:
+          type: ["number", "null"]
+        babyWeightMaxLbs:
+          type: ["number", "null"]
+        unitCount:
+          type: ["integer", "null"]
+        maxQuantityPerOrder:
+          type: ["integer", "null"]
+        imageUrl:
+          type: ["string", "null"]
+        unitPriceCents:
+          type: ["integer", "null"]
+          description: Price per individual unit in cents (per diaper, per wipe). Multiply by monthly usage quantity to get monthly subscription cost.
+        packSize:
+          type: ["integer", "null"]
+          description: Number of individual diapers in one retail pack. Divide monthly usage by this to get the number of packs to order.
+
+    ProductInput:
+      type: object
+      required: [name, category, price]
+      properties:
+        name:
+          type: string
+        category:
+          type: string
+        description:
+          type: string
+        price:
+          type: number
+        imageEmoji:
+          type: string
+        compatibleSizes:
+          type: string
+        brand:
+          type: string
+        sku:
+          type: string
+        shipbobProductId:
+          type: integer
+
+    ApprovedSku:
+      type: object
+      required: [id, internalSku, amazonSellerSku, title, category, active]
+      properties:
+        id:
+          type: integer
+        internalSku:
+          type: string
+        amazonSellerSku:
+          type: string
+        asin:
+          type: ["string", "null"]
+        brand:
+          type: ["string", "null"]
+        title:
+          type: string
+        category:
+          type: string
+        diaperSize:
+          type: ["string", "null"]
+        babyWeightMinLbs:
+          type: ["number", "null"]
+        babyWeightMaxLbs:
+          type: ["number", "null"]
+        unitCount:
+          type: ["integer", "null"]
+        active:
+          type: boolean
+        maxQuantityPerOrder:
+          type: ["integer", "null"]
+
+    ApprovedSkuInput:
+      type: object
+      required: [internalSku, amazonSellerSku, title, category]
+      properties:
+        internalSku:
+          type: string
+        amazonSellerSku:
+          type: string
+        asin:
+          type: string
+        brand:
+          type: string
+        title:
+          type: string
+        category:
+          type: string
+          enum: [diapers, wipes, diaper cream, baby bath, baby health]
+        diaperSize:
+          type: string
+        babyWeightMinLbs:
+          type: number
+        babyWeightMaxLbs:
+          type: number
+        unitCount:
+          type: integer
+        active:
+          type: boolean
+        maxQuantityPerOrder:
+          type: integer
+
+    Subscription:
+      type: object
+      required: [id, babyId, status, frequency, nextDeliveryDate, createdAt]
+      properties:
+        id:
+          type: integer
+        babyId:
+          type: integer
+        babyName:
+          type: ["string", "null"]
+        status:
+          type: string
+        frequency:
+          type: string
+        brand:
+          type: ["string", "null"]
+        currentDiaperSize:
+          type: ["string", "null"]
+        nextDeliveryDate:
+          type: string
+          format: date
+        monthlyPriceCents:
+          type: ["integer", "null"]
+        shippingName:
+          type: ["string", "null"]
+        shippingAddress1:
+          type: ["string", "null"]
+        shippingCity:
+          type: ["string", "null"]
+        shippingState:
+          type: ["string", "null"]
+        shippingZip:
+          type: ["string", "null"]
+        shippingCountry:
+          type: ["string", "null"]
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/SubscriptionItem"
+        createdAt:
+          type: string
+
+    SubscriptionItem:
+      type: object
+      required: [productId, quantity]
+      properties:
+        productId:
+          type: integer
+        productName:
+          type: ["string", "null"]
+        quantity:
+          type: integer
+        priceCents:
+          type: ["integer", "null"]
+
+    CartItem:
+      type: object
+      required: [productId, quantity]
+      properties:
+        productId:
+          type: integer
+        quantity:
+          type: integer
+
+    CartCheckoutInput:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/CartItem"
+        successUrl:
+          type: string
+        cancelUrl:
+          type: string
+
+    SubscriptionCheckoutInput:
+      type: object
+      required: [subscriptionId]
+      properties:
+        subscriptionId:
+          type: integer
+        successUrl:
+          type: string
+        cancelUrl:
+          type: string
+
+    CheckoutSession:
+      type: object
+      required: [url]
+      properties:
+        url:
+          type: string
+
+    StripePayment:
+      type: object
+      required: [id, amount, currency, status, created]
+      properties:
+        id:
+          type: string
+        amount:
+          type: integer
+        currency:
+          type: string
+        status:
+          type: string
+        created:
+          type: integer
+        description:
+          type: ["string", "null"]
+
+    RefundInput:
+      type: object
+      required: [paymentIntentId]
+      properties:
+        paymentIntentId:
+          type: string
+        amountCents:
+          type: integer
+
+    RefundResult:
+      type: object
+      required: [refundId, status]
+      properties:
+        refundId:
+          type: string
+        status:
+          type: string
+
+    SubscriptionInput:
+      type: object
+      required: [babyId, frequency, nextDeliveryDate]
+      properties:
+        babyId:
+          type: integer
+        frequency:
+          type: string
+        nextDeliveryDate:
+          type: string
+          format: date
+        brand:
+          type: string
+        shippingName:
+          type: string
+        shippingAddress1:
+          type: string
+        shippingCity:
+          type: string
+        shippingState:
+          type: string
+        shippingZip:
+          type: string
+        shippingCountry:
+          type: string
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/SubscriptionItemInput"
+
+    SubscriptionItemInput:
+      type: object
+      required: [productId, quantity]
+      properties:
+        productId:
+          type: integer
+        quantity:
+          type: integer
+
+    SubscriptionUpdate:
+      type: object
+      properties:
+        frequency:
+          type: string
+        nextDeliveryDate:
+          type: string
+          format: date
+        shippingName:
+          type: string
+        shippingAddress1:
+          type: string
+        shippingCity:
+          type: string
+        shippingState:
+          type: string
+        shippingZip:
+          type: string
+        shippingCountry:
+          type: string
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/SubscriptionItemInput"
+
+    OneTimePurchaseInput:
+      type: object
+      required: [productId, quantity, scheduledDate, shippingName, shippingAddress1, shippingCity, shippingState, shippingZip]
+      properties:
+        productId:
+          type: integer
+        quantity:
+          type: integer
+          minimum: 1
+        diaperSize:
+          type: string
+          description: Required when purchasing diapers
+        scheduledDate:
+          type: string
+          format: date
+        shippingName:
+          type: string
+        shippingAddress1:
+          type: string
+        shippingCity:
+          type: string
+        shippingState:
+          type: string
+        shippingZip:
+          type: string
+        shippingCountry:
+          type: string
+
+    Order:
+      type: object
+      required: [id, status, scheduledDate, createdAt]
+      properties:
+        id:
+          type: integer
+        subscriptionId:
+          type: ["integer", "null"]
+        babyId:
+          type: ["integer", "null"]
+        babyName:
+          type: ["string", "null"]
+        status:
+          type: string
+        scheduledDate:
+          type: string
+          format: date
+        diaperSize:
+          type: ["string", "null"]
+        totalCents:
+          type: ["integer", "null"]
+        trackingNumber:
+          type: ["string", "null"]
+        carrier:
+          type: ["string", "null"]
+          description: Shipping carrier (e.g. USPS, UPS, FedEx)
+        fulfillmentProvider:
+          type: ["string", "null"]
+        fulfillmentId:
+          type: ["string", "null"]
+        fulfillmentStatus:
+          type: ["string", "null"]
+        fulfillmentErrorMessage:
+          type: ["string", "null"]
+          description: Human-readable reason for a failed auto-fulfillment attempt. Set when status is "fulfillment_error".
+        shippingName:
+          type: ["string", "null"]
+        shippingAddress1:
+          type: ["string", "null"]
+        shippingCity:
+          type: ["string", "null"]
+        shippingState:
+          type: ["string", "null"]
+        shippingZip:
+          type: ["string", "null"]
+        shippingCountry:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+
+    FulfillOrderInput:
+      type: object
+      properties:
+        shippingName:
+          type: string
+        shippingAddress1:
+          type: string
+        shippingCity:
+          type: string
+        shippingState:
+          type: string
+        shippingZip:
+          type: string
+        shippingCountry:
+          type: string
+        shippingEmail:
+          type: string
+
+    FulfillAmazonInput:
+      type: object
+      properties:
+        shippingName:
+          type: string
+        shippingAddress1:
+          type: string
+        shippingCity:
+          type: string
+        shippingState:
+          type: string
+        shippingZip:
+          type: string
+        shippingCountry:
+          type: string
+        shippingEmail:
+          type: string
+        shippingSpeed:
+          type: string
+          enum: [Standard, Expedited, Priority]
+          default: Standard
+
+    ValidateAmazonCartInput:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          minItems: 1
+          items:
+            type: object
+            required: [productId, quantity]
+            properties:
+              productId:
+                type: integer
+              quantity:
+                type: integer
+                minimum: 1
+
+    ValidateAmazonCartResult:
+      type: object
+      required: [valid, validItems, invalidItems]
+      properties:
+        valid:
+          type: boolean
+        validItems:
+          type: array
+          items:
+            type: object
+            required: [productId, name, quantity]
+            properties:
+              productId:
+                type: integer
+              name:
+                type: string
+              quantity:
+                type: integer
+        invalidItems:
+          type: array
+          items:
+            type: object
+            required: [productId, reason]
+            properties:
+              productId:
+                type: integer
+              reason:
+                type: string
+
+    ProcessPendingResult:
+      type: object
+      required: [processed, succeeded, skipped, failed, results]
+      properties:
+        processed:
+          type: integer
+        succeeded:
+          type: integer
+        skipped:
+          type: integer
+        failed:
+          type: integer
+        results:
+          type: array
+          items:
+            type: object
+            required: [orderId, success, skipped]
+            properties:
+              orderId:
+                type: integer
+              success:
+                type: boolean
+              skipped:
+                type: boolean
+              skipReason:
+                type: string
+              error:
+                type: string
+
+    DashboardSummary:
+      type: object
+      required: [totalBabies, activeSubscriptions, upcomingDeliveries, totalOrdersShipped]
+      properties:
+        totalBabies:
+          type: integer
+        activeSubscriptions:
+          type: integer
+        upcomingDeliveries:
+          type: integer
+        totalOrdersShipped:
+          type: integer
+        nextDelivery:
+          type: ["object", "null"]
+          properties:
+            babyName:
+              type: string
+            scheduledDate:
+              type: string
+            diaperSize:
+              type: string
+        monthlyCostCents:
+          type: ["integer", "null"]
+        sizeChangesThisYear:
+          type: integer

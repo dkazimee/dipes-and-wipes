@@ -1,0 +1,84 @@
+Build a Node.js/Express backend for my baby-supply subscription site that integrates with Amazon Selling Partner API for Multi-Channel Fulfillment.
+
+Goal:
+Customers order diapers/wipes/baby supplies on my website. My app should validate the product against an approved SKU whitelist, create an Amazon MCF fulfillment order, save the order status, and expose endpoints for my frontend.
+
+Use:
+- Node.js + Express
+- PostgreSQL or SQLite
+- dotenv for secrets
+- Axios/fetch for API calls
+- Stripe placeholder for payments, but do not fully implement payment yet
+
+Important Amazon details:
+- Use Amazon SP-API.
+- Auth should use Login with Amazon access tokens from refresh token flow.
+- Include x-amz-access-token and user-agent headers on SP-API requests.
+- Do not hardcode secrets.
+- Create a service file: amazonSpApi.js
+- Create a route file: fulfillmentRoutes.js
+- Create models/tables for:
+  1. approved_skus
+  2. customer_orders
+  3. fulfillment_orders
+
+Build these endpoints:
+1. GET /api/products
+   - Return only active approved SKUs from my local database.
+   - Do not fetch or expose the entire Amazon catalog.
+
+2. POST /api/orders/validate
+   - Accept cart items.
+   - Reject any SKU not in approved_skus.
+   - Reject inactive SKUs.
+   - Reject products outside allowed categories: diapers, wipes, diaper cream, baby bath, baby health, baby feeding accessories.
+
+3. POST /api/orders
+   - Accept customer shipping info and cart.
+   - Validate all SKUs against approved_skus.
+   - Create a local order.
+   - Create an Amazon MCF fulfillment order using SP-API Fulfillment Outbound API.
+   - Save Amazon fulfillmentOrderId.
+   - Return local order ID and fulfillment status.
+
+4. GET /api/orders/:id
+   - Return local order status and Amazon fulfillment status if available.
+
+approved_skus table fields:
+- id
+- internal_sku
+- amazon_seller_sku
+- asin
+- brand
+- title
+- category
+- diaper_size
+- baby_weight_min_lbs
+- baby_weight_max_lbs
+- unit_count
+- active
+- max_quantity_per_order
+- created_at
+- updated_at
+
+Seed the database with example SKUs:
+- HUGGIES_SIZE_1
+- HUGGIES_SIZE_2
+- PAMPERS_SIZE_1
+- PAMPERS_SIZE_2
+- WATERWIPES_720CT
+- AQUAPHOR_BABY_14OZ
+
+Add strong comments showing where I need to add:
+- SP_API_REFRESH_TOKEN
+- LWA_CLIENT_ID
+- LWA_CLIENT_SECRET
+- SP_API_ENDPOINT
+- MARKETPLACE_ID
+
+Also add guardrails:
+- Never allow frontend-submitted Amazon SKUs directly.
+- Frontend can only submit internal_sku.
+- Backend maps internal_sku to amazon_seller_sku.
+- If a SKU is not in approved_skus, return 400.
+- Log fulfillment API errors without exposing secrets.

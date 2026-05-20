@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "Dipes & Wipes"
+version = "1.0.0"
+id = "artifacts/dipes-and-wipes"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 24456
+
+[services.development]
+run = "pnpm --filter @workspace/dipes-and-wipes run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/dipes-and-wipes", "run", "build" ]
+publicDir = "artifacts/dipes-and-wipes/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "24456"
+BASE_PATH = "/"
